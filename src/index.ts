@@ -39,7 +39,7 @@ export {
 export type { GithubFileOutput, GithubGetKind, GithubSearchOutput, GithubSearchOutputItem } from './tools.ts'
 
 /** Cordis plugin name used by loader diagnostics. */
-export const name = 'dsh-github'
+export const name = 'dsh-plugin-github'
 
 /** Services required before the plugin starts. */
 export const inject = ['tools', 'systemPrompt']

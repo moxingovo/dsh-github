@@ -1,17 +1,20 @@
-# dsh-github
+# dsh-plugin-github
 
-[涓枃](README.zh.md) | English
+[中文](README.zh.md) | English
 
 A GitHub retrieval plugin for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). After install the agent gains two tools:
 
-- `github_search` 鈥?find repositories and issues/PRs with native GitHub search syntax (e.g. `repo:vercel/next.js is:issue`).
-- `github_get` 鈥?read one resource in full: repository metadata, an issue or pull-request body, or a decoded file.
+- `github_search` — find repositories and issues/PRs with native GitHub search syntax (e.g. `repo:vercel/next.js is:issue`).
+- `github_get` — read one resource in full: repository metadata, an issue or pull-request body, or a decoded file.
 
 Anonymous by default (60 requests per hour per IP). Set a read-only fine-grained token to unlock code search and raise the limit to 5000 per hour. Read-only by design: the plugin never creates issues, comments, or code.
 
 ## Install
 
 ```sh
+dsh plugin --profile web add dsh-plugin-github
+
+# or directly from Git:
 dsh plugin --profile web add git+https://github.com/moxingovo/dsh-github
 ```
 
@@ -36,7 +39,7 @@ Without a token everything still works anonymously; only code search and the hig
 | `searchMaxPerPage` | `30` | Page-size ceiling for `github_search` (API maximum 100). |
 | `fileMaxChars` | `200000` | File character cap for `github_get` (value-level, with a `truncated` flag). |
 
-Override any field in `profiles/web/cordis.patch.yml` 鈥?later layers win per row.
+Override any field in `profiles/web/cordis.patch.yml` — later layers win per row.
 
 ## Error codes
 

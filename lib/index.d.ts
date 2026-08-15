@@ -13,7 +13,7 @@ export type { GithubFileResult, GithubIssueDetail, GithubProviderLike, GithubRep
 export { GITHUB_FILE_MAX_CHARS, GITHUB_SEARCH_DEFAULT_PER_PAGE, applyGithubGetTool, applyGithubSearchTool, formatFileOutput, formatIssueOutput, formatRepoOutput, formatSearchOutput, githubFileOutput, parseGetArgs, parseSearchArgs, } from './tools.ts';
 export type { GithubFileOutput, GithubGetKind, GithubSearchOutput, GithubSearchOutputItem } from './tools.ts';
 /** Cordis plugin name used by loader diagnostics. */
-export declare const name = "dsh-github";
+export declare const name = "dsh-plugin-github";
 /** Services required before the plugin starts. */
 export declare const inject: string[];
 /** Default cooperative tool-call timeout budget (ms). */
