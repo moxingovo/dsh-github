@@ -1,0 +1,14 @@
+# dsh-github bundle patch — one insert row over the profile tree.
+# Override any field in profiles/web/cordis.patch.yml — later layers win per row.
+- insert:
+    - id: github
+      name: 'dsh-github'
+      config:
+        # 可选：GitHub 只读 fine-grained token 的环境变量名；留空则匿名（60 次/小时）
+        tokenEnv: GITHUB_TOKEN
+        # 单请求超时（毫秒）
+        requestTimeoutMs: 30000
+        # 每页结果数上限（API 上限 100）
+        searchMaxPerPage: 30
+        # github_get 读取文件的字符上限（超限截断并标记 truncated）
+        fileMaxChars: 200000
