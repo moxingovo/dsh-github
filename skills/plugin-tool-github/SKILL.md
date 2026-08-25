@@ -5,7 +5,7 @@ description: Use before calling github_search or github_get — find GitHub repo
 
 # GitHub 工具套件使用指南（plugin-tool-github）
 
-插件版本：0.1.0-rc.5。关联插件：plugin-web-github（宿主服务与凭据背景）、plugin-tool-bilibili（B 站侧对应工具，可联合做跨源信息核实）。
+插件版本：0.1.2。关联插件：plugin-web-github（宿主服务与凭据背景）、plugin-tool-bilibili（B 站侧对应工具，可联合做跨源信息核实）。
 
 ## 功能概述
 
@@ -35,8 +35,8 @@ github_get：
 - owner：必填，仓库所有者名，只允许字母数字、点、横线、下划线。
 - repo：必填，仓库名，规则同上。
 - number：kind=issue 时必填，正整数。
-- path：kind=file 时必填，文件路径，如 README.md、src/index.ts。
-- ref：可选，分支或标签名，默认走默认分支。
+- path：kind=file 时必填，文件路径，如 README.md、src/index.ts。含空格/中文等字符的路径会自动逐段编码，不会请求失败。
+- ref：可选，分支或标签名，默认走默认分支。指定 ref 时，返回的 htmlUrl 链接指向对应分支/标签版本，而非固定 HEAD。
 返回：按 kind 不同——repo 返回 fullName、stars、forks、openIssues、language、license、topics、defaultBranch、archived、createdAt、pushedAt、description；issue 返回 number、title、body、state、author、labels、comments、pullRequest、createdAt、updatedAt；file 返回 path、size、content、truncated。文件内容的两层边界：工具层在超过 200000 字符时截断并置 truncated=true；提供方层对超过 1MB 的文件直接报 GITHUB_FILE_TOO_LARGE 且不下发任何内容（此时根本到不了截断步骤）。
 
 ## 最小调用示例

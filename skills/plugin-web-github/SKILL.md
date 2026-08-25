@@ -5,7 +5,7 @@ description: Use when configuring or diagnosing the ctx.github host service behi
 
 # GitHub 宿主服务与故障排查（plugin-web-github）
 
-插件版本：0.1.0-rc.5。关联插件：plugin-tool-github（模型侧工具用法，正常使用时先看它）。
+插件版本：0.1.2。关联插件：plugin-tool-github（模型侧工具用法，正常使用时先看它）。
 
 ## 功能概述
 
@@ -22,6 +22,7 @@ description: Use when configuring or diagnosing the ctx.github host service behi
 - 默认匿名访问，每 IP 每小时 60 次请求；配置 token 后提升到 5000 次并解锁代码搜索。
 - token 解析顺序：字面量 token 配置，然后凭据 seam，然后启动环境变量 GITHUB_TOKEN（以 Bearer 头发送）。
 - 所有请求拒绝重定向；token 只发给配置的 API 主机。
+- 文件路径请求逐段 URL 编码（含空格/中文/`#`/`?` 的文件名不受影响）；返回的 htmlUrl 携带请求的 ref（未指定时为 HEAD），保证链接指向对应版本。
 - 超过 1MB 的文件不下发内容，报 GITHUB_FILE_TOO_LARGE；1MB 以内的文件由工具层在 200000 字符处截断（见 plugin-tool-github 的 truncated 说明）。两层边界独立生效。
 
 ## 配置键（部署层）

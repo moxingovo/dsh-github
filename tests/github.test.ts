@@ -33,6 +33,8 @@ describe('mappers', () => {
     expect(mapRepoData({ full_name: 'a/b', license: { spdx_id: 'MIT' }, topics: ['x', 5] })).toMatchObject({ fullName: 'a/b', license: 'MIT', topics: ['x'], archived: false })
     expect(mapIssueData({ number: 1, pull_request: { url: 'x' } })).toMatchObject({ number: 1, pullRequest: true, labels: [] })
     expect(mapFileData({ path: 'x.md', size: 2, content: Buffer.from('hi').toString('base64') }, 'a', 'b').content).toBe('hi')
+    expect(mapFileData({ path: 'x.md', size: 2, content: Buffer.from('hi').toString('base64') }, 'a', 'b').htmlUrl).toBe('https://github.com/a/b/blob/HEAD/x.md')
+    expect(mapFileData({ path: 'src/页 面.ts', size: 2, content: Buffer.from('hi').toString('base64') }, 'a', 'b', 'feature/测试 ^x').htmlUrl).toBe('https://github.com/a/b/blob/feature%2F%E6%B5%8B%E8%AF%95%20%5Ex/src/%E9%A1%B5%20%E9%9D%A2.ts')
     expect(() => mapFileData({ path: 'big.bin', size: 2000000 }, 'a', 'b')).toThrow(GithubError)
   })
 })

@@ -72,4 +72,4 @@ export declare function mapIssueData(data: unknown): GithubIssueDetail;
  * Map a contents endpoint payload into decoded text.
  * @throws GithubError GITHUB_FILE_TOO_LARGE when the API omits the content.
  */
-export declare function mapFileData(data: unknown, owner: string, repo: string): GithubFileResult;
+export declare function mapFileData(data: unknown, owner: string, repo: string, ref?: string): GithubFileResult;

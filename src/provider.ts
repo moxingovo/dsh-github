@@ -85,8 +85,11 @@ export class GithubApiProvider {
   async file(request: { readonly owner: string; readonly repo: string; readonly path: string; readonly ref?: string }, signal?: AbortSignal): Promise<GithubFileResult> {
     const params: Record<string, string | number> = {}
     if (request.ref !== undefined && request.ref.length > 0) params.ref = request.ref
-    const data = await this.requestJson('/repos/' + request.owner + '/' + request.repo + '/contents/' + request.path, params, signal)
-    return mapFileData(data, request.owner, request.repo)
+    // Path segments are encoded so spaces, CJK, and even #/? inside file
+    // names survive URL construction (a raw '#' would become a fragment).
+    const encodedPath = request.path.split('/').map(segment => encodeURIComponent(segment)).join('/')
+    const data = await this.requestJson('/repos/' + request.owner + '/' + request.repo + '/contents/' + encodedPath, params, signal)
+    return mapFileData(data, request.owner, request.repo, request.ref)
   }
 
   /**
@@ -218,7 +221,7 @@ export function mapIssueData(data: unknown): GithubIssueDetail {
  * Map a contents endpoint payload into decoded text.
  * @throws GithubError GITHUB_FILE_TOO_LARGE when the API omits the content.
  */
-export function mapFileData(data: unknown, owner: string, repo: string): GithubFileResult {
+export function mapFileData(data: unknown, owner: string, repo: string, ref?: string): GithubFileResult {
   const record = asRecord(data)
   const path = nonEmptyString(record.path) ?? ''
   const encoded = nonEmptyString(record.content)
@@ -226,9 +229,11 @@ export function mapFileData(data: unknown, owner: string, repo: string): GithubF
   if (encoded === undefined) {
     throw new GithubError('github did not inline this file (files over 1MB are not decoded)', 'GITHUB_FILE_TOO_LARGE')
   }
+  const encodeSegments = (text: string): string => text.split('/').map(segment => encodeURIComponent(segment)).join('/')
+  const refSegment = ref !== undefined && ref.length > 0 ? encodeURIComponent(ref) : 'HEAD'
   return {
     path,
-    htmlUrl: 'https://github.com/' + owner + '/' + repo + '/blob/HEAD/' + path,
+    htmlUrl: 'https://github.com/' + owner + '/' + repo + '/blob/' + refSegment + '/' + encodeSegments(path),
     size,
     content: Buffer.from(encoded, 'base64').toString('utf8'),
   }
