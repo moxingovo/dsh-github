@@ -73,3 +73,8 @@ Early rc releases of the official DeepSeek Harness packages declare an unpublish
 ## License
 
 [MIT](LICENSE)
+
+## Compatibility
+
+Verified on **DeepSeek Harness 0.1.6-alpha.2** (Typert API Gateway). No code change was needed for 0.1.6 — this plugin does not use the typert codec API. The 0.1.0 line works too.
+

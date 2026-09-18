@@ -1,6 +1,6 @@
-{
+﻿{
   "name": "dsh-plugin-github",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "DeepSeek Harness plugin: GitHub repository/issue search, repo and issue details, and file reading tools (github_search / github_get). Anonymous by default; an optional read-only fine-grained token unlocks code search and raises the rate limit.",
   "keywords": [
     "deepseek-harness",

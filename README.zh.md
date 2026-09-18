@@ -73,3 +73,8 @@ DeepSeek Harness 官方包的早期 rc 版本声明了未发布的 peer 依赖�
 ## 许可证
 
 [MIT](LICENSE)
+
+## 兼容性
+
+已在 **DeepSeek Harness 0.1.6-alpha.2**（Typert API Gateway）上验证。本插件不使用 typert codec API，0.1.6 无需改代码；0.1.0 线同样可用。
+
