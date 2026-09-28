@@ -1,0 +1,97 @@
+name: Release
+
+# Tag-driven release: push a `v<version>` tag (matching package.json's version and the
+# `## <version>` section in CHANGELOG.md) and this workflow verifies, packs, and publishes
+# the GitHub Release with the changelog section as its body.
+#
+# workflow_dispatch runs only the verify + pack job (artifact, no Release), which is the
+# "watch it build without publishing" path.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify & pack
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Same four commands as ci.yml, from the committed lockfile.
+      - name: Install
+        run: npm ci --registry=https://registry.npmjs.org/
+
+      - name: Test
+        run: npm test
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      # The publishable artifact, so a release can be consumed without cloning.
+      - name: Pack
+        run: npm pack --registry=https://registry.npmjs.org/
+
+      - name: Upload tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-tarball
+          path: '*.tgz'
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: verify
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: npm-tarball
+          path: artifacts
+
+      # Release body = the `## <version>` section of CHANGELOG.md, verbatim.
+      # A missing section fails the run instead of publishing an empty release.
+      - name: Extract release notes from CHANGELOG
+        shell: bash
+        run: |
+          section="${GITHUB_REF_NAME#v}"
+          awk -v sec="## ${section}" '$0==sec{on=1;next} on&&/^## /{exit} on{print}' CHANGELOG.md > RELEASE_NOTES.md
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "No CHANGELOG section found for ${section}" >&2
+            exit 1
+          fi
+
+      - name: Delete stale release for this tag (re-publish safety)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release delete "${GITHUB_REF_NAME}" --yes || true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: artifacts/*.tgz
+          body_path: RELEASE_NOTES.md
