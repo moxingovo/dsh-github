@@ -5,7 +5,7 @@ description: Use before calling github_search or github_get — find GitHub repo
 
 # GitHub 工具套件使用指南（plugin-tool-github）
 
-插件版本：0.1.2。关联插件：plugin-web-github（宿主服务与凭据背景）、plugin-tool-bilibili（B 站侧对应工具，可联合做跨源信息核实）。
+插件版本：0.1.3（已在 DeepSeek Harness 0.1.7-rc.2 与 0.1.6-alpha.2 上验证）。关联技能：plugin-web-github（宿主提供方与凭据背景）、plugin-tool-bilibili（B 站侧对应工具，可联合做跨源信息核实）。
 
 ## 功能概述
 
