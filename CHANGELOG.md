@@ -4,6 +4,33 @@
 GitHub Release 正文。因此**顶部那一节的标题必须正好等于 `package.json` 的 version**
 (例如 `## 0.1.4`),并且这一节要自带完整叙述 —— 正文会一直取到下一个 `## ` 为止。
 
+## 0.1.5
+
+(2026-09-30) 在 **DeepSeek Harness 0.2.0-rc.2** 上验证通过 —— 也就是**官方桌面端内置的那个
+运行时**(macOS/Windows 桌面端自带 dsh 运行时与插件管理,不再需要另装 Node 或 pnpm)。
+**运行时代码零改动**;本版只是把 `devDependencies` 指向 `@deepseek-ai/*@0.2.0-rc.2`,让
+`npm run typecheck` 从此就是对桌面端运行时的真实兼容性验证。
+
+### 为什么可以断定兼容
+
+逐个包比对过 0.1.7-rc.2 与 0.2.0-rc.2 的源码,本插件用到的接口一处没变:
+`@deepseek-ai/dsh-tools`(defineTool、`ctx.tools.register`)、`@deepseek-ai/dsh-system-prompt`
+(`section`)零改动。本插件的两个工具都是纯读取型、不注入上下文,因此也避开了 0.2.0
+在会话/消息投影方向上的所有改动。
+
+### 验证
+
+- `npm run typecheck`:针对 `@deepseek-ai/*@0.2.0-rc.2` 通过。
+- `npm test`:7 项全过(HTTP 全部 mock,离线可跑)。
+- `npm run build`:产物随本提交更新。
+- 依赖面:`dsh-tools@0.2.0-rc.2` 要求 `@deepseek-ai/cordis ~4.0.4`,本插件声明
+  `>=4.0.0` 且 devDeps 用 `4.0.4`,满足。
+
+### 桌面端注意事项
+
+桌面端用**同一套 profile 机制**(`~/.dsh`)加载外部插件,因此本插件照常出现在它的插件管理里;
+它默认监听 **19387** 而不是 Web 的 3080,但本插件不碰宿主端口,无需配置。
+
 ## 0.1.4
 
 (2026-09-28) 在 **DeepSeek Harness 0.1.7-rc.2** 上完成验证:**运行时代码无需任何改动**。
