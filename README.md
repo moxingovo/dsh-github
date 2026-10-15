@@ -95,7 +95,8 @@ Tools fail with structured errors carrying these codes:
 | `GITHUB_API_ERROR` | 422 invalid search syntax, or another non-2xx status. |
 | `GITHUB_BAD_RESPONSE` | Non-JSON response body. |
 | `GITHUB_REDIRECT_REFUSED` | A redirect was refused — the credential-safety guard. |
-| `GITHUB_REQUEST_FAILED` | Network failure, including timeouts. |
+| `GITHUB_TLS_UNTRUSTED` | The HTTPS connection was re-signed by a proxy, antivirus scanner, or a local accelerator, and this runtime trusts only its built-in CA list — see the TLS caveat under Skills. |
+| `GITHUB_REQUEST_FAILED` | Network failure, including timeouts; since 0.1.6 the message carries the underlying code (e.g. `[ECONNREFUSED]`). |
 | `GITHUB_FILE_TOO_LARGE` | The API does not inline files over 1MB, so no content is returned. |
 
 Two independent boundaries apply to file reads: the API inlines at most 1MB (`GITHUB_FILE_TOO_LARGE`
@@ -142,7 +143,7 @@ Node 22 or newer:
 
 ```sh
 npm ci
-npm test          # 7 tests, fully offline (mocked HTTP)
+npm test          # 8 tests, fully offline (mocked HTTP)
 npm run typecheck # runs against the published DeepSeek Harness packages
 npm run build
 ```

@@ -82,6 +82,20 @@ describe('provider request handling', () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('moved', { status: 301 }))
     await expect(new GithubApiProvider().repo({ owner: 'a', repo: 'b' })).rejects.toMatchObject({ code: 'GITHUB_REDIRECT_REFUSED' })
   })
+
+  it('names TLS interception instead of hiding it behind "fetch failed"', async () => {
+    const intercepted = Object.assign(new TypeError('fetch failed'), {
+      cause: Object.assign(new Error('unable to verify the first certificate'), { code: 'UNABLE_TO_VERIFY_LEAF_SIGNATURE' }),
+    })
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(intercepted)
+    await expect(new GithubApiProvider().repo({ owner: 'a', repo: 'b' })).rejects.toMatchObject({ code: 'GITHUB_TLS_UNTRUSTED' })
+    vi.restoreAllMocks()
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(Object.assign(new TypeError('fetch failed'), {
+      cause: Object.assign(new Error('connect ECONNREFUSED'), { code: 'ECONNREFUSED' }),
+    }))
+    await expect(new GithubApiProvider().repo({ owner: 'a', repo: 'b' })).rejects.toMatchObject({ code: 'GITHUB_REQUEST_FAILED' })
+    vi.restoreAllMocks()
+  })
 })
 
 describe('plugin composition', () => {

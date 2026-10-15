@@ -4,6 +4,51 @@
 GitHub Release 正文。因此**顶部那一节的标题必须正好等于 `package.json` 的 version**
 (例如 `## 0.1.4`),并且这一节要自带完整叙述 —— 正文会一直取到下一个 `## ` 为止。
 
+## 0.1.6
+
+(2026-10-15) **TLS 中间层不再伪装成 `fetch failed`**:新增错误码 `GITHUB_TLS_UNTRUSTED`。
+成功路径、配置键、工具签名一律未动 —— 改的只是失败时的映射。
+
+### 起因(实测,不是假想)
+
+本机装了 Watt Toolkit 的 GitHub 加速:它改 hosts 把 `api.github.com` 指向 `127.0.0.1`,再在本地
+443 做 TLS 中间人重签(根证书 `CN=SteamTools Certificate`,安装在 Windows 证书库里)。浏览器与
+`curl` 一切正常,插件却每次都只报:
+
+    github request failed: TypeError: fetch failed
+
+而真正的原因被 undici 包在两层 `cause` 里,`String(cause)` 恰好丢掉:
+
+    TypeError: fetch failed
+      cause: Error: unable to verify the first certificate
+        code: 'UNABLE_TO_VERIFY_LEAF_SIGNATURE'
+
+Node 与 Electron 只信内置 CA 清单、不读系统证书库 —— 这个不对称让「证书被中间人重签」成了唯一
+一种错误信息完全指向不了原因的失败。当时靠 `curl --resolve`、`Test-NetConnection` 与
+`tls.connect` 逐个排除才定位到证书,代价四五个回合。
+
+### 改了
+
+- 失败时提取 `cause.cause.code`;命中 8 个证书类错误码(`UNABLE_TO_VERIFY_LEAF_SIGNATURE`、
+  `UNABLE_TO_GET_ISSUER_CERT_LOCALLY`、`SELF_SIGNED_CERT_IN_CHAIN`、`DEPTH_ZERO_SELF_SIGNED_CERT`、
+  `CERT_HAS_EXPIRED` 等)时报 `GITHUB_TLS_UNTRUSTED`,消息里直接说明「连接被中间人重签 + 本运行时
+  只信内置 CA」,并给出两条出路(让运行时信任该根 CA / 把 `baseUrl` 指到自有端点)。
+- 其余传输失败仍是 `GITHUB_REQUEST_FAILED`,但消息里带上底层 code(如 `[ECONNREFUSED]`)。
+
+### 文档
+
+- `plugin-web-github` 的「环境相关」整节重写:症状、成因、判定、两条出路,并**明确警告
+  `NODE_OPTIONS` / `NODE_EXTRA_CA_CERTS` 只能由启动环境导出、不能写进 `~/.dsh/.env`** ——
+  `.env` 层禁止启动期变量,`readEnvLayer` 会直接 fatal,整个 app 停在启动阶段(真踩过,记档)。
+- `plugin-tool-github` 的网络失败条目改为指向上述排查,并拆出 `GITHUB_TLS_UNTRUSTED` 的处置。
+- README(中英)错误码表各补一行,测试条数 7 → 8。
+
+### 验证
+
+- `npm test`:8 项全过(新增一项:同一段代码在 `UNABLE_TO_VERIFY_LEAF_SIGNATURE` 下报
+  `GITHUB_TLS_UNTRUSTED`、在 `ECONNREFUSED` 下仍报 `GITHUB_REQUEST_FAILED`;HTTP 全部 mock,
+  离线可跑)。
+- `npm run typecheck` 通过。
 ## 0.1.5
 
 (2026-09-30) 在 **DeepSeek Harness 0.2.0-rc.2** 上验证通过 —— 也就是**官方桌面端内置的那个

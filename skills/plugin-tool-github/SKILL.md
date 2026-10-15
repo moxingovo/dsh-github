@@ -59,6 +59,7 @@ github_get：
 
 ## 异常与回退
 
-- 网络失败（GITHUB_REQUEST_FAILED）：重试一次；仍失败则提示稍后。若该环境存在 TLS 中间层，服务端需以 NODE_OPTIONS=--use-system-ca 运行——这类错误不是本工具能修的，直接告知用户环境问题。
+- 证书类失败（GITHUB_TLS_UNTRUSTED）：这不是网络不通，是有人在中间重签 HTTPS（代理、杀软扫描，或 Watt Toolkit 这类改 hosts + 本地 443 中间人的加速器），而 Node/Electron 只信内置 CA 清单。别重试、别换关键词，直接按 plugin-web-github 的「环境相关」给出两条出路（让运行时信任该根 CA，或把 baseUrl 指到自有端点）；`NODE_OPTIONS` 只能由启动环境导出，写进 `~/.dsh/.env` 会让 dsh 起不来。
+- 其它网络失败（GITHUB_REQUEST_FAILED）：重试一次；仍失败则提示稍后。
 - 匿名速率耗尽：优先用搜索结果里的 snippet 与 htmlUrl 引用，把 github_get 留给最关键的目标。
 - 拿不到正文：引用 htmlUrl 让用户自查，不编造仓库内容。

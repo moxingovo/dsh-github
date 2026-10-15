@@ -91,7 +91,8 @@ GITHUB_TOKEN=github_pat_...
 | `GITHUB_API_ERROR` | 422 搜索语法非法，或其它非 2xx。 |
 | `GITHUB_BAD_RESPONSE` | 非 JSON 响应体。 |
 | `GITHUB_REDIRECT_REFUSED` | 出现重定向被拒 —— 凭据安全保护生效。 |
-| `GITHUB_REQUEST_FAILED` | 网络失败，含超时。 |
+| `GITHUB_TLS_UNTRUSTED` | HTTPS 被代理/杀软/本地加速器在中间重签，而本运行时只信内置 CA 清单——见技能里的 TLS 说明。 |
+| `GITHUB_REQUEST_FAILED` | 网络失败，含超时；0.1.6 起消息里附底层 code（如 `[ECONNREFUSED]`）。 |
 | `GITHUB_FILE_TOO_LARGE` | API 不下发超过 1MB 的文件内容。 |
 
 读文件有两条互不相干的边界：API 最多内联 1MB（超过即 `GITHUB_FILE_TOO_LARGE`），工具层在
@@ -137,7 +138,7 @@ cp -r node_modules/dsh-plugin-github/skills/* ~/.dsh/skills/
 
 ```sh
 npm ci
-npm test          # 7 项，完全离线（HTTP 全部 mock）
+npm test          # 8 项，完全离线（HTTP 全部 mock）
 npm run typecheck # 针对已发布的 DeepSeek Harness 包执行
 npm run build
 ```

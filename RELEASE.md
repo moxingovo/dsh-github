@@ -33,7 +33,7 @@
 cd C:\Users\20906\dsh-plugin-publish\dsh-github
 
 npm ci --registry=https://registry.npmjs.org/   # 与 CI 一样的干净安装
-npm test                                        # 7 项，离线（HTTP 全部 mock）
+npm test                                        # 8 项，离线（HTTP 全部 mock）
 npm run typecheck                               # 对着 @deepseek-ai/* 的类型验证兼容性
 npm run build                                   # 产物进 lib/ 与 dist/，随提交一起走
 ```
@@ -59,7 +59,7 @@ push 时会弹浏览器让你登录 GitHub（Git Credential Manager，Git for Wi
 推上去之后 `.github/workflows/release.yml` 会依次做：
 
 1. `npm ci --registry=https://registry.npmjs.org/`；
-2. `npm test`（7 项）；
+2. `npm test`（8 项）；
 3. `npm run typecheck`（对着 `@deepseek-ai/*` 的类型）；
 4. `npm run build`；
 5. `npm pack` 出 `.tgz` 并上传 artifact；
